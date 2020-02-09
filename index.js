@@ -59,6 +59,29 @@ const listenOrientationChange = that => {
   });
 };
 
+const useOrientationChange = () => {
+  const [windowData, setWindowData] = useState(Dimensions.get('window'));
+
+  useEffect(() => {
+    const onChange = (newDimensions: { window: ScaledSize, screen: ScaledSize}) => {
+      // Retrieve and save new dimensions
+      screenWidth = newDimensions.window.width;
+      screenHeight = newDimensions.window.height;
+      
+      // Trigger screen's rerender with a state update of the windowData variable
+      setWindowData(newDimensions.window);
+    };
+    Dimensions.addEventListener('change', onChange);
+
+    return () => Dimensions.removeEventListener('change', onChange);
+  });
+
+  return {
+    ...windowData,
+    isLandscape: screenWidth > screenHeight,
+  };
+};
+
 /**
  * Wrapper function that removes orientation change listener and should be invoked in
  * componentWillUnmount lifecycle method of every class component (UI screen) that
@@ -73,5 +96,6 @@ export {
   widthPercentageToDP,
   heightPercentageToDP,
   listenOrientationChange,
-  removeOrientationListener
+  removeOrientationListener,
+  useOrientationChange
 };
