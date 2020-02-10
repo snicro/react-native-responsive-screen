@@ -1,4 +1,5 @@
 // packages
+import React, { useState, useEffect } from "react";
 import { Dimensions, PixelRatio } from 'react-native';
 
 // Retrieve initial screen's width
@@ -59,16 +60,26 @@ const listenOrientationChange = that => {
   });
 };
 
+/**
+ * Wrapper function that removes orientation change listener and should be invoked in
+ * componentWillUnmount lifecycle method of every class component (UI screen) that
+ * listenOrientationChange function has been invoked. This should be done in order to
+ * avoid adding new listeners every time the same component is re-mounted.
+ */
+const removeOrientationListener = () => {
+  Dimensions.removeEventListener('change', () => {});
+};
+
 const useOrientationChange = () => {
   const [windowData, setWindowData] = useState(Dimensions.get('window'));
 
   useEffect(() => {
-    const onChange = (newDimensions: { window: ScaledSize, screen: ScaledSize}) => {
+    const onChange = (newDimensions) => {
       // Retrieve and save new dimensions
       screenWidth = newDimensions.window.width;
       screenHeight = newDimensions.window.height;
-      
-      // Trigger screen's rerender with a state update of the windowData variable
+
+      // Trigger screen's re-render with a state update of the windowData variable
       setWindowData(newDimensions.window);
     };
     Dimensions.addEventListener('change', onChange);
@@ -80,16 +91,6 @@ const useOrientationChange = () => {
     ...windowData,
     isLandscape: screenWidth > screenHeight,
   };
-};
-
-/**
- * Wrapper function that removes orientation change listener and should be invoked in
- * componentWillUnmount lifecycle method of every class component (UI screen) that
- * listenOrientationChange function has been invoked. This should be done in order to
- * avoid adding new listeners every time the same component is re-mounted.
- */
-const removeOrientationListener = () => {
-  Dimensions.removeEventListener('change', () => {});
 };
 
 export {
